@@ -1,4 +1,13 @@
 <?php
+/*
+Plugin Name: WP Booking Export
+Plugin URI: https://innovisionlab.com
+Description: WP Booking Export
+Author: iLab
+Version: 1.0.0
+Author URI: https://innovisionlab.com
+*/
+
 class WpCptExport
 {
     function __construct() {
@@ -18,29 +27,34 @@ class WpCptExport
 
         $arrPosts = get_posts([
             'post_type' => $data['cpt'],
-            'post_status' => 'publish',
+            'post_status' => 'any',
             'posts_per_page' => $data['ppp'],
             'offset' => $data['pn'] * $data['ppp'],
             'orderby' => 'ID',
+            'order' => 'ASC',
+            'date_query' => [
+                'after' => [
+                    'year'  => 2018,
+                    'month' => 12,
+                    'day'   => 31,
+                ]
+            ]
         ]);
 
         $return = [];
         
         foreach ($arrPosts as $objPost)
         {
-            $pm = get_post_meta($objPost->ID);
+            $return[] = [
+                //'title' => $objPost->post_title,
+                'Last Name' => get_post_meta($objPost->ID, "quitenicebooking_guest_last_name", true),
+                'First Name' => get_post_meta($objPost->ID, "quitenicebooking_guest_first_name", true),
+                'Email' => get_post_meta($objPost->ID, "quitenicebooking_guest_email", true),
 
-            $gallery = [];
-
-            $arrPost = (array)$objPost;
-
-
-            $return[] = array_merge($arrPost, $pm);
+            ];
         }
 
-        return [
-            $return
-        ];
+        return $return;
     }
 }
 
